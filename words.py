@@ -38,6 +38,8 @@ class NopeFormatRule(CompoundRule):
         global lastFormatRuleLength
         print "erasing previous format of length", lastFormatRuleLength
         return Key('backspace:' + str(lastFormatRuleLength))
+    def _process_recognition(self, node, extras):
+        self.value(node).execute()
 
 class ReFormatRule(CompoundRule):
     spec = ('that was [upper | natural] ( proper | camel | rel-path | abs-path | score | sentence | '
@@ -67,6 +69,8 @@ class ReFormatRule(CompoundRule):
         global lastFormatRuleLength
         lastFormatRuleLength = len(formatted)
         return Text(formatted)
+    def _process_recognition(self, node, extras):
+        self.value(node).execute()
 
 class FormatRule(CompoundRule):
     spec = ('[upper | natural] ( proper | camel | rel-path | abs-path | score | sentence | '
@@ -110,10 +114,13 @@ class FormatRule(CompoundRule):
             return Text(formatted) + Mimic(' '.join(bomb))
         else:
             return Text(formatted)
+    def _process_recognition(self, node, extras):
+        self.value(node).execute()
 
 class PhraseFormatRule(CompoundRule):
     spec = ('[start] [new] phrase [<dictation>]')
     extras = [Dictation(name='dictation')]
+    exported = False
 
     def value(self, node):
         words = node.words()
@@ -150,4 +157,3 @@ class PhraseFormatRule(CompoundRule):
 
         print "  ->", formatted
         return Text(formatted)
-

@@ -35,9 +35,12 @@ class RepeatRule(CompoundRule):
 
     def _process_recognition(self, node, extras):  # @UnusedVariable
         sequence = extras["sequence"]  # A sequence of actions.
+        print "repeat rule matched!"
+        print sequence
         count = extras["n"]  # An integer repeat count.
         for i in range(count):  # @UnusedVariable
             for action in sequence:
+                print action
                 action.execute()
             release.execute()
 
@@ -52,8 +55,21 @@ def unload():
         grammar.unload()
     grammar = None
 
+class Observer(RecognitionObserver):
+    def on_begin(self):
+        print("Speech started.")
+
+    def on_recognition(self, words):
+        print(" ".join(words))
+
+    def on_failure(self):
+        print("Sorry, what was that?")
+
 if __name__ == '__main__':
-    engine = get_engine("voxhub")
-    #engine.list_available_microphones()
-    #engine.dump_grammar()
+    engine = get_engine("kaldi",
+        model_dir='kaldi_model_zamia',
+        auto_add_to_user_lexicon=True)  # set to True to possibly use cloud for pronunciations
     engine.connect()
+    observer = Observer()
+    observer.register()
+    engine.do_recognition()
