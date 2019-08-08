@@ -55,21 +55,31 @@ def unload():
         grammar.unload()
     grammar = None
 
-class Observer(RecognitionObserver):
-    def on_begin(self):
-        print("Speech started.")
-
-    def on_recognition(self, words):
-        print(" ".join(words))
-
-    def on_failure(self):
-        print("Sorry, what was that?")
 
 if __name__ == '__main__':
+
+    class Observer(RecognitionObserver):
+        def on_begin(self):
+            print("Speech started.")
+
+        def on_recognition(self, words):
+            print(" ".join(words))
+
+        def on_failure(self):
+            print("Sorry, what was that?")
+
     engine = get_engine("kaldi",
         model_dir='kaldi_model_zamia',
         auto_add_to_user_lexicon=True)  # set to True to possibly use cloud for pronunciations
+
     engine.connect()
+
     observer = Observer()
     observer.register()
-    engine.do_recognition()
+
+    try:
+        # Loop forever
+        print("Listening...")
+        engine.do_recognition()
+    except KeyboardInterrupt:
+        pass
